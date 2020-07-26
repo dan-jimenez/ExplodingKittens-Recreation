@@ -1,0 +1,100 @@
+{
+    "baraja": [
+        "seethefuture",
+        "favor",
+        "comodin5",
+        "attack",
+        "bomb",
+        "comodin2",
+        "nope",
+        "comodin5",
+        "nope",
+        "comodin4",
+        "seethefuture",
+        "comodin4",
+        "favor",
+        "nope",
+        "comodin3",
+        "skip",
+        "attack",
+        "comodin1",
+        "comodin2",
+        "comodin1",
+        "attack",
+        "shuffle",
+        "defuse",
+        "shuffle",
+        "comodin5",
+        "comodin3",
+        "comodin1",
+        "skip",
+        "nope",
+        "shuffle",
+        "comodin4",
+        "comodin2",
+        "defuse",
+        "nope",
+        "comodin3"
+    ],
+    "cartas": [
+        "attack",
+        "skip",
+        "favor",
+        "seethefuture",
+        "nope",
+        "shuffle",
+        "comodin1",
+        "comodin2",
+        "comodin3",
+        "comodin4",
+        "comodin5"
+    ],
+    "bomb": [
+        "bomb"
+    ],
+    "defuse": [
+        "defuse"
+    ],
+    "mazo1": [
+        "defuse",
+        "favor",
+        "skip",
+        "comodin1",
+        "comodin4",
+        "seethefuture",
+        "favor"
+    ],
+    "mazo2": [
+        "defuse",
+        "comodin5",
+        "seethefuture",
+        "comodin3",
+        "attack",
+        "comodin2",
+        "seethefuture",
+        "skip"
+    ],
+    "mazo3": [],
+    "mazo4": [],
+    "cartas_c": [
+        "attack",
+        "skip",
+        "favor",
+        "seethefuture",
+        "nope",
+        "shuffle",
+        "comodin1",
+        "comodin2",
+        "comodin3",
+        "comodin4",
+        "comodin5",
+        "bomb",
+        "defuse"
+    ],
+    "baraja_a": [
+        "shuffle"
+    ],
+    "muestras": [],
+    "men": [],
+    "cart": []
+}

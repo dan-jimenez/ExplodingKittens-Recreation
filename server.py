@@ -218,6 +218,7 @@ class serv():
         datos['muestras'].append(datos['baraja'][2])
         self.cargar(datos)
         self.msg_to_all("cargar".encode())
+        print ('si futuro')
 
     def saber_player(self,j, jugador):
         """
@@ -451,8 +452,9 @@ class serv():
             self.defensa(self.abrir(), j)
         elif data == 'futuro' and self.turno == j:
             self.futuro(self.abrir(), j)
-            self.contador()
+            sleep(0.3)
             j.send("muestra".encode())
+            print('si muestra')
         elif data == 'saltar' and self.turno ==j:
             self.saltar(self.abrir(), j)
         elif data == 'Final turno' and self.turno == j:
@@ -470,35 +472,36 @@ class serv():
         elif data == "favor4" and self.turno == j:
             favor_para= j
             self.jugadores[3].send('favor'.encode())
-        elif data == 's_defuse' and self.turno == j:
+        elif data == 's_defuse' and self.turno== favor_para:
             self.favor(self.abrir(), favor_para, 'defuse')
-        elif data == 's_nope' and self.turno == j:
+        elif data == 's_nope' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'nope')
-        elif data == 's_seethefuture' and self.turno == j:
+        elif data == 's_seethefuture' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'sethefuture')
-        elif data == 's_comodin1' and self.turno == j:
+        elif data == 's_comodin1' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'comodin1')
-        elif data == 's_comodin2' and self.turno == j:
+        elif data == 's_comodin2' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'comodin2')
-        elif data == 's_comodin3' and self.turno == j:
+        elif data == 's_comodin3' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'comodin3')
-        elif data == 's_comodin4' and self.turno == j:
+        elif data == 's_comodin4' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'comodin4')
-        elif data == 's_comodin5' and self.turno == j:
+        elif data == 's_comodin5' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'comodin5')
-        elif data == 's_attack' and self.turno == j:
+        elif data == 's_attack' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'attack')
-        elif data == 's_skip' and self.turno == j:
+        elif data == 's_skip' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'skip')
-        elif data == 's_favor' and self.turno == j:
+        elif data == 's_favor' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'favor')
-        elif data == 's_shuffle' and self.turno == j:
+        elif data == 's_shuffle' and self.turno == favor_para:
             self.favor(self.abrir(), favor_para, 'shuffle')
-        elif data== 'ataque1' and self.turno == j:
+        elif data== 'ataque' and self.turno == j:
             self.turno(j)
             sleep(0.5)
             self.turno(j)
-            j.send('Listo'.encode())
+            sleep(0.5)
+            j.send('Listo'.encode())        
         elif data == 'comodinesCon2para1' and self.turno == j:
             self.comodinesCon2(self.abrir(), j, 'mazo1')
         elif data == 'comodinesCon2para2' and self.turno == j:

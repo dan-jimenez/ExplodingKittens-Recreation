@@ -427,19 +427,19 @@ class game():
                         self.send_msg('s_skip')
                         escoger= False
                     elif self.cursor.colliderect(comodin_1.rect):
-                        self.msg_recv('s_comodin1')
+                        self.send_msg('s_comodin1')
                         escoger= False
                     elif self.cursor.colliderect(comodin_2.rect):
-                        self.msg_recv('s_comodin2')
+                        self.send_msg('s_comodin2')
                         escoger= False
                     elif self.cursor.colliderect(comodin_3.rect):
-                        self.msg_recv('s_comodin3')
+                        self.send_msg('s_comodin3')
                         escoger= False
                     elif self.cursor.colliderect(comodin_4.rect):
-                        self.msg_recv('s_comodin4')
+                        self.send_msg('s_comodin4')
                         escoger= False
                     elif self.cursor.colliderect(comodin_5.rect):
-                        self.msg_recv('s_comodin5')
+                        self.send_msg('s_comodin5')
                         escoger= False
 
             self.screen.blit(background, (0,0))
@@ -610,7 +610,8 @@ class game():
                             self.game_over()
                         self.send_msg("baraja")
                         turnos-= 1
-                        if turnos == 1:
+                        sleep(0.3)
+                        if turnos == 0:
                             self.send_msg("Final turno")
                     elif self.cursor.colliderect(defensa.rect):
                         self.send_msg("defensa")
@@ -624,11 +625,12 @@ class game():
                     elif self.cursor.colliderect(futuro.rect) and  turnos != 0:
                         self.send_msg("futuro")
                     elif self.cursor.colliderect(ataque.rect)  and  turnos != 0:
-                        self.escoger_jugador2
+                        self.send_msg('ataque')
+                        sleep(0.3)
+                        self.send_msg('Final Turno')
                     elif self.cursor.colliderect(salto.rect):
-                        if turnos > 1:
-                            turnos -= 1
-                        if turnos == 1 :
+                        turnos -= 1
+                        if turnos == 0 :
                             self.send_msg("saltar")
                     elif self.cursor.colliderect(comodin_1.rect) and turnos != 0:
                         comodines += 1
