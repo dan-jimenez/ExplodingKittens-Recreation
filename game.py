@@ -3,7 +3,6 @@ import threading
 from threading import Timer
 import sys
 import pygame
-from typing import TextIO
 import json
 
 
@@ -118,6 +117,7 @@ class game():
         return self.datos
 
     def game_over(self):
+        self.datos['baraja'].remove(self.datos['baraja'][0])
         while True:
             self.screen.blit(game_over, (254, 175))
             restar_b.draw(self.screen)
@@ -168,14 +168,10 @@ class game():
             elif c == self.datos['cartas_c'][12]:
                 defensa.update(self.screen, self.cursor, x, y)
                 procces = False
-            if c == self.datos['cartas_c'][11]:
-                bomba.draw(self.screen, 445, 266)
-                self.send_msg("bomba")
-                procces= False
 
     def dibujar_cartas(self,x, y, aumentox, aumentoy, cartas):
         x1= x
-        if len(self.datos[cartas])<9:
+        if len(self.datos[cartas])<=8:
             if cartas == "mazo1" or cartas == "mazo2" or cartas == "mazo3" or cartas == "mazo4":
                 y+= aumentoy
             else:
@@ -187,9 +183,15 @@ class game():
                 if self.datos[cartas].index(c) == 7:
                     y += aumentoy
                     x = x1
-                elif self.datos[cartas].index(c) == 15:
+                elif self.datos[cartas].index(c) == 16:
                     y += 57
                     x = x1
+
+    def contador(self):
+        n = 0
+        while n > 99990000:
+            n += 1
+        pass
 
     def inicializar(self):
         pygame.init()
@@ -246,13 +248,17 @@ class game():
         restar_b = boton(restart, 418, 501)
         boton_azul= boton(turn, 5 , 637)
         mark= imagenes(marco)
-        font= pygame.font.SysFont("Showcard Gothic", 80)
-        texto1= font.render("Exploding Kittens", 0, (255,255,255))
+        font= pygame.font.SysFont("Showcard Gothic", 50)
+        texto1= font.render("¿Que carta vas a dar?", 0, (255,255,255))
+        texto2= font.render("¿A quien quieres pedir un favor?", 0, (255,255,255))
+
 
         #variables
         blit_mazo= False
         partida= False
-        turnos= False
+        turnos= 0
+        muestras= False
+        favorr = False
 
         #Ponerle el icono y el nombre a la ventana
         pygame.display.set_caption("Exploding Kittens")
@@ -269,40 +275,88 @@ class game():
                     if self.cursor.colliderect(pause.rect):
                         self.send_msg("pausar")
                     elif self.cursor.colliderect(play.rect):
-                        self.send_msg("iniciar partida")
                         partida= True
+                        self.send_msg("iniciar partida")
                     elif self.cursor.colliderect(restar_b.rect):
                         self.inicializar()
-                    elif self.cursor.colliderect(baraja.rect) and turnos:
+                    elif self.cursor.colliderect(baraja.rect) and turnos != 0:
+                        while self.datos['baraja'][0] == 'bomb':
+                            bomba.draw(self.screen, 445, 266)
+                            t= Timer(20.0, game_over)
+                            t.start()
                         self.send_msg("baraja")
-                    elif self.cursor.colliderect(boton_azul.rect) and turnos:
-                        self.send_msg("Final turno")
-                    elif self.cursor.colliderect(defensa.rect) and turnos:
-                        self.send_msg("defensa")
-                    elif self.cursor.colliderect(no.rect) and turnos:
-                        self.send_msg("no")
-                    elif self.cursor.colliderect(barajar.rect) and turnos:
-                        self.send_msg("barajar")
-                    elif self.cursor.colliderect(favr.rect) and turnos:
-                        self.send_msg("favor")
-                    elif self.cursor.colliderect(futuro.rect) and turnos:
-                        self.send_msg("futuro")
-                    elif self.cursor.colliderect(ataque.rect) and turnos:
-                        self.send_msg("ataque")
-                    elif self.cursor.colliderect(salto.rect) and turnos:
-                        self.send_msg("saltar")
-
+                        turnos-= 1
+                        if turnos == 0:
+                            self.send_msg("Final turno")
+                    elif self.cursor.colliderect(defensa.rect):
+                        if turnos != 0:
+                            self.send_msg("defensa")
+                        elif favorr:
+                            self.send_msg("send-defuse")
+                    elif self.cursor.colliderect(no.rect):
+                        if turnos != 0:
+                            self.send_msg("no")
+                        if favorr:
+                            self.send_msg("send-nope")
+                    elif self.cursor.colliderect(barajar.rect):
+                        if turnos != 0:
+                            self.send_msg("barajar")
+                        if favorr:
+                            self.send_msg("send-shuffle")
+                    elif self.cursor.colliderect(favr.rect):
+                        if turnos != 0:
+                            self.contador()
+                            if event.type == pygame.MOUSEBUTTONDOWN:
+                                if self.cursor.colliderect(jugador_1.rect):
+                                    vacio = '1'
+                                elif self.cursor.colliderect(jugador_2.rect):
+                                    vacio = '2'
+                                elif self.cursor.colliderect(jugador_3.rect):
+                                    vacio = '3'
+                                elif self.cursor.colliderect(jugador_4.rect):
+                                    vacio = '4'
+                            mensaje = 'favor' + vacio
+                            self.send_msg(mensaje)
+                        if favorr:
+                            self.send_msg("send-favor")
+                    elif self.cursor.colliderect(futuro.rect):
+                        if turnos != 0:
+                            self.send_msg("futuro")
+                        if favorr:
+                            self.send_msg("send-seethefuture")
+                    elif self.cursor.colliderect(ataque.rect):
+                        if turnos != 0:
+                            self.send_msg("ataque")
+                        if favorr:
+                            self.send_msg("send-attack")
+                            favorr = False
+                    elif self.cursor.colliderect(salto.rect):
+                        if turnos !=0:
+                            turnos -= 1
+                            if turnos == 0 :
+                                self.send_msg("saltar")
+                        if favorr:
+                            self.send_msg("send-skip")
+                            favorr= False
 
 
 
 
                 self.screen.blit(background, (0,0))
-                if partida== False:
-                    mark.draw(self.screen, 0, 0)
-                    play.draw(self.screen)
-                else:
+                if partida:
                     baraja.draw(self.screen, 360, 283)
                     pause.draw(self.screen)
+                    if self.mensaje == "Listo":
+                        turnos -= 1
+                    if self.mensaje == "tu turno":
+                        turnos += 1
+                    if self.mensaje == "muestra":
+                        muestras= True
+                    if self.mensaje == "favor":
+                        self.screen.blit(texto1,(200, 100))
+                        favorr = True
+                    if turnos != 0:
+                        boton_azul.draw(self.screen)
                     if self.mensaje == "cargar" or self.mensaje == "partida iniciada" or blit_mazo:
                         self.abrir()
                         time = 0
@@ -311,20 +365,21 @@ class game():
                         blit_mazo = True
                         m = 'mazo' + id
                         self.dibujar_cartas(110, 450, 100, 77, m)
-                        if self.datos['baraja_a'] != []:
-                            self.dibujar_cartas(510, 266, 0, 0, 'baraja_a')
-                    if self.mensaje == "Listo":
-                        turnos = False
-                    if self.mensaje == "tu turno":
-                        turnos = True
-                    if turnos:
-                        boton_azul.draw(self.screen)
+                        self.dibujar_cartas(510, 266, 0, 0, 'baraja_a')
+                        if muestras:
+                            self.dibujar_cartas(225, 266, 140, 0, 'muestras')
+                            self.contador()
+                            self.datos['muestras']= []
+                            self.send_msg("cargar")
+                            muestras = False
 
                     jugador_1.draw(self.screen)
                     jugador_2.draw(self.screen)
                     jugador_3.draw(self.screen)
                     jugador_4.draw(self.screen)
-
+                else:
+                    mark.draw(self.screen, 0, 0)
+                    play.draw(self.screen)
 
                 self.cursor.update()
                 self.clock.tick(60)

@@ -147,7 +147,6 @@ class serv():
         jugador = ''
         jugador = self.saber_player(j, jugador)
         mazo = 'mazo' + jugador
-        print(mazo)
         datos[mazo].append(datos['baraja'][0])
         datos['baraja'].remove(datos['baraja'][0])
         self.cargar(datos)
@@ -157,12 +156,22 @@ class serv():
         jugador = ''
         jugador = self.saber_player(j, jugador)
         mazo = 'mazo' + jugador
-        print(mazo)
         datos[mazo].remove("defuse")
         datos[mazo].remove('bomb')
         datos['baraja_a'].append("defuse")
         datos['baraja'].append('bomb')
         random.shuffle(datos['baraja'])
+        self.cargar(datos)
+        self.msg_to_all("cargar".encode())
+    def futuro(self, datos, j):
+        jugador = ''
+        jugador = self.saber_player(j, jugador)
+        mazo = 'mazo' + jugador
+        datos[mazo].remove("seethefuture")
+        datos['baraja_a'].append("seethefuture")
+        datos['muestras'].append(datos['baraja'][0])
+        datos['muestras'].append(datos['baraja'][1])
+        datos['muestras'].append(datos['baraja'][2])
         self.cargar(datos)
         self.msg_to_all("cargar".encode())
 
@@ -184,7 +193,6 @@ class serv():
         jugador= ''
         jugador= self.saber_player(j, jugador)
         mazo= 'mazo' + jugador
-        print(mazo)
         datos[mazo].remove("skip")
         datos['baraja_a'].append("skip")
         self.cargar(datos)
@@ -196,12 +204,25 @@ class serv():
         jugador = ''
         jugador = self.saber_player(j, jugador)
         mazo = 'mazo' + jugador
-        print(mazo)
         datos[mazo].remove("shuffle")
         datos['baraja_a'].append("shuffle")
         random.shuffle(datos['baraja'])
         self.cargar(datos)
         self.msg_to_all("cargar".encode())
+    def favor(self, datos, j):
+        jugador = ''
+        jugador = self.saber_player(j, jugador)
+        mazo = 'mazo' + jugador
+        datos[mazo].remove("favor")
+        datos['baraja_a'].append("favor")
+        carta = ""
+        while carta == "":
+            pass
+        cart = carta.removeprefix("send-")
+        datos[mazo].append(cart)
+        self.cargar(datos)
+        self.msg_to_all("cargar".encode())
+
 
     def create(self):
         data = {
@@ -219,6 +240,7 @@ class serv():
                        "shuffle", "comodin1", "comodin2", "comodin3", "comodin4",
                        "comodin5", "bomb", "defuse"],
             'baraja_a': [],
+            'muestras': []
         }
         self.cargar(data)
 
@@ -258,7 +280,7 @@ class serv():
 
     def contador(self):
         n = 0
-        while n > 1200000:
+        while n > 99990000:
             n += 1
         pass
 
@@ -281,15 +303,54 @@ class serv():
         elif data == "baraja" and self.turno ==j:
             self.press_baraja(self.abrir(),j)
         elif data == 'barajar' and self.turno == j:
-            self.barajar()
-        elif data== 'defensa' and self.turno == j:
+            self.barajar(self.abrir(), j)
+        elif data== 'defensa':
             self.defensa(self.abrir(), j)
-        elif data == 'saltar':
+        elif data == 'futuro' and self.turno == j:
+            self.futuro(self.abrir(), j)
+            self.contador()
+            j.send("muestra".encode())
+        elif data == 'saltar' and self.turno ==j:
             self.saltar(self.abrir(), j)
         elif data == 'Final turno' and self.turno == j:
             self.turnos(j)
             j.send('Listo'.encode())
-
+        elif data == "favor1":
+            favor_para= j
+            self.jugadores[0].send("favor".encode())
+        elif data == "favor2":
+            favor_para= j
+            self.jugadores[1].send('favor'.encode())
+        elif data == "favor3":
+            favor_para= j
+            self.jugadores[2].send('favor'.encode())
+        elif data == "favor4":
+            favor_para= j
+            self.jugadores[3].send('favor'.encode())
+        elif data == "send-nope":
+            self.favor(self.abrir(), j, "nope")
+        elif data == "send-attack":
+            self.favor(self.abrir(), j, "attack")
+        elif data == "send-seethefuture":
+            self.favor(self.abrir(), j, "seethefuture")
+        elif data == "send-shuffle":
+            self.favor(self.abrir(), j, "shuffle")
+        elif data == "send-comodin1":
+            self.favor(self.abrir(), j, "comodin1")
+        elif data == "send-comodin2":
+            self.favor(self.abrir(), j, "comodin2")
+        elif data == "send-comodin3":
+            self.favor(self.abrir(), j, "comodin3")
+        elif data == "send-comodin4":
+            self.favor(self.abrir(), j, "comodin4")
+        elif data == "send-comodin5":
+            self.favor(self.abrir(), j, "comodin5")
+        elif data == "send-skip":
+            self.favor(self.abrir(), j, "skip")
+        elif data == "send-defuse":
+            self.favor(self.abrir(), j, "defuse")
+        elif data == "send-favor":
+            self.favor(self.abrir(), j, "favor")
         else:
             self.msg_to_all(data.encode())
 
