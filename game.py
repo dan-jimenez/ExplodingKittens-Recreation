@@ -35,6 +35,7 @@ comodin3 = pygame.image.load("img/COMODIN3.png")
 comodin4 = pygame.image.load("img/COMODIN4.png")
 comodin5 = pygame.image.load("img/COMODIN5.png")
 turn= pygame.image.load('img/turno.png')
+marco= pygame.image.load('img/marco_logo.png')
 
 class cursor(pygame.Rect):
     def __init__(self):
@@ -91,7 +92,7 @@ class game():
 
 
 
-        while True:
+        if True:
             self.inicializar()
 
     def msg_recv(self):
@@ -167,26 +168,28 @@ class game():
             elif c == self.datos['cartas_c'][12]:
                 defensa.update(self.screen, self.cursor, x, y)
                 procces = False
-            if c == self.datos['cartas_c'][11] and timer:
+            if c == self.datos['cartas_c'][11]:
                 bomba.draw(self.screen, 445, 266)
                 self.send_msg("bomba")
                 procces= False
 
-    def mazo(self, ident= id):
-        x, y = 110, 450
-        m= "mazo" + id
-        if len(self.datos[m])<9:
-            y=527
-        if self.datos[m] != []:
-            for c in self.datos[m]:
+    def dibujar_cartas(self,x, y, aumentox, aumentoy, cartas):
+        x1= x
+        if len(self.datos[cartas])<9:
+            if cartas == "mazo1" or cartas == "mazo2" or cartas == "mazo3" or cartas == "mazo4":
+                y+= aumentoy
+            else:
+                y= y
+        if self.datos[cartas] != []:
+            for c in self.datos[cartas]:
                 self.imprimir_cartas(c, x, y)
-                x += 100
-                if self.datos[m].index(c) == 7:
-                    y += 77
-                    x = 110
-                elif self.datos[m].index(c) == 15:
+                x += aumentox
+                if self.datos[cartas].index(c) == 7:
+                    y += aumentoy
+                    x = x1
+                elif self.datos[cartas].index(c) == 15:
                     y += 57
-                    x = 110
+                    x = x1
 
     def inicializar(self):
         pygame.init()
@@ -199,24 +202,24 @@ class game():
         global id
         id= self.mensaje
         if id == "1":
-            jugador_1 = boton(jugador1, 440, 593)
+            jugador_1 = boton(jugador1, 447, 593)
             jugador_2 = boton(jugador2, 0, 303)
             jugador_3 = boton(jugador3, 463, 0)
-            jugador_4 = boton(jugador4, 896, 298)
+            jugador_4 = boton(jugador4, 903, 304)
         elif id == "2":
-            jugador_1 = boton(jugador2, 440, 593)
+            jugador_1 = boton(jugador2, 447, 593)
             jugador_2 = boton(jugador3, 0, 303)
             jugador_3 = boton(jugador4, 463, 0)
-            jugador_4 = boton(jugador1, 880, 298)
+            jugador_4 = boton(jugador1, 889, 298)
         elif id == "3":
             jugador_1 = boton(jugador3, 440, 593)
-            jugador_2 = boton(jugador4, 0, 303)
-            jugador_3 = boton(jugador1, 463, 0)
-            jugador_4 = boton(jugador2, 896, 298)
+            jugador_2 = boton(jugador4, 0, 304)
+            jugador_3 = boton(jugador1, 447, 0)
+            jugador_4 = boton(jugador2, 915, 303)
         elif id == "4":
-            jugador_1 = boton(jugador4, 440, 593)
-            jugador_2 = boton(jugador1, 0, 303)
-            jugador_3 = boton(jugador2, 463, 0)
+            jugador_1 = boton(jugador4, 447, 593)
+            jugador_2 = boton(jugador1, 0, 296)
+            jugador_3 = boton(jugador2, 457, 0)
             jugador_4 = boton(jugador3, 896, 298)
 
         #Constructor de cartas
@@ -235,18 +238,22 @@ class game():
         barajar = imagenes(shuffle)
         no = imagenes(nope)
 
-        #Botones y baraja
+        #Botones, baraja y otros
         global baraja, restar_b
         baraja= imagenes(Baraja)
         pause= boton(boton_pause, 905, 5)
-        play= boton(boton_play, 5, 5)
+        play= boton(boton_play, 435 , 500)
         restar_b = boton(restart, 418, 501)
         boton_azul= boton(turn, 5 , 637)
+        mark= imagenes(marco)
+        font= pygame.font.SysFont("Showcard Gothic", 80)
+        texto1= font.render("Exploding Kittens", 0, (255,255,255))
 
         #variables
         blit_mazo= False
         partida= False
         turnos= False
+
         #Ponerle el icono y el nombre a la ventana
         pygame.display.set_caption("Exploding Kittens")
         pygame.display.set_icon(icon)
@@ -261,45 +268,62 @@ class game():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.cursor.colliderect(pause.rect):
                         self.send_msg("pausar")
-                    if self.cursor.colliderect(play.rect):
+                    elif self.cursor.colliderect(play.rect):
                         self.send_msg("iniciar partida")
-                    if self.cursor.colliderect(restar_b.rect):
+                        partida= True
+                    elif self.cursor.colliderect(restar_b.rect):
                         self.inicializar()
-                    if self.cursor.colliderect(baraja.rect) and turnos:
+                    elif self.cursor.colliderect(baraja.rect) and turnos:
                         self.send_msg("baraja")
-                    if self.cursor.colliderect(boton_azul.rect):
+                    elif self.cursor.colliderect(boton_azul.rect) and turnos:
                         self.send_msg("Final turno")
-                    if self.cursor.colliderect(defensa.rect) and blit_mazo:
+                    elif self.cursor.colliderect(defensa.rect) and turnos:
                         self.send_msg("defensa")
+                    elif self.cursor.colliderect(no.rect) and turnos:
+                        self.send_msg("no")
+                    elif self.cursor.colliderect(barajar.rect) and turnos:
+                        self.send_msg("barajar")
+                    elif self.cursor.colliderect(favr.rect) and turnos:
+                        self.send_msg("favor")
+                    elif self.cursor.colliderect(futuro.rect) and turnos:
+                        self.send_msg("futuro")
+                    elif self.cursor.colliderect(ataque.rect) and turnos:
+                        self.send_msg("ataque")
+                    elif self.cursor.colliderect(salto.rect) and turnos:
+                        self.send_msg("saltar")
 
 
 
 
 
                 self.screen.blit(background, (0,0))
+                if partida== False:
+                    mark.draw(self.screen, 0, 0)
+                    play.draw(self.screen)
+                else:
+                    baraja.draw(self.screen, 360, 283)
+                    pause.draw(self.screen)
+                    if self.mensaje == "cargar" or self.mensaje == "partida iniciada" or blit_mazo:
+                        self.abrir()
+                        time = 0
+                        while time < 120:
+                            time += 1
+                        blit_mazo = True
+                        m = 'mazo' + id
+                        self.dibujar_cartas(110, 450, 100, 77, m)
+                        if self.datos['baraja_a'] != []:
+                            self.dibujar_cartas(510, 266, 0, 0, 'baraja_a')
+                    if self.mensaje == "Listo":
+                        turnos = False
+                    if self.mensaje == "tu turno":
+                        turnos = True
+                    if turnos:
+                        boton_azul.draw(self.screen)
 
-                baraja.draw(self.screen, 360, 283)
-                pause.draw(self.screen)
-                play.draw(self.screen)
-                if self.mensaje == "cargar" or self.mensaje== "partida iniciada" or blit_mazo:
-                    self.abrir()
-                    time = 0
-                    while time<120:
-                        time+= 1
-                    blit_mazo= True
-                    self.mazo()
-                if self.mensaje== "Listo":
-                    turnos= False
-                if self.mensaje == "tu turno":
-                    turnos= True
-                if turnos:
-                    boton_azul.draw(self.screen)
-
-
-                jugador_1.draw(self.screen)
-                jugador_2.draw(self.screen)
-                jugador_3.draw(self.screen)
-                jugador_4.draw(self.screen)
+                    jugador_1.draw(self.screen)
+                    jugador_2.draw(self.screen)
+                    jugador_3.draw(self.screen)
+                    jugador_4.draw(self.screen)
 
 
                 self.cursor.update()

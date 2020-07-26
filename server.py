@@ -38,19 +38,12 @@ class serv():
             print("Jugador 1 conectado")
             i.send("1".encode())
 
-    """
-    Funcion para enviar mensajes de llegadas a todos los jugadores conectados
-    Recibe como parametros 
-    msg: mensaje entrante
-    jugador: el jugador que envio el mensaje
-    """
-    """
-    Funcion para aceptar una conexion
-    
-    No recibe parametros
-     """
-
     def aceptarCon(self):
+        """
+        Funcion para aceptar una conexion
+
+        No recibe parametros
+        """
         while True:
             try:
                 conn, addr = self.serv.accept()
@@ -60,25 +53,33 @@ class serv():
                 self.plays(i)
             except:
                 pass
-            """
-            Metodo para procesar los mensajes entrantes
-            
-            No recibe parametros
-            """
 
     def procesarCon(self):
+        """
+        Funcion que se encarga de recibir los mensajes
+
+        No recibe parametros
+        """
         while True:
             if len(self.jugadores) > 0:
                 for j in self.jugadores:
                     try:
                         data = j.recv(200000)
                         if data:
-                            print(data.decode())
+                            print('llegada ' + data.decode())
                             self.analizar(data.decode(), j)
                     except:
                         pass
 
     def barajar_repartir(self, datos):
+        """
+        Funcion que se encarga de barajar las cartas y repartirlas cuando se inicia el juego
+
+        Parametros:
+        datos= un diccionario con datos del juego
+
+        Tambien llama a la funcion de repartir para poder así repartir las cartas
+        """
         for d in datos['defuse']:
             for j in self.jugadores:
                 mazo = str('mazo' + str((self.jugadores.index(j) + 1)))
@@ -104,18 +105,29 @@ class serv():
         print("Se ha barajado y repartido las cartas")
 
     def repartir(self, datos):
+        """
+        Funcion para repartir las cartas
+
+        Parametros:
+        datos= diccionario donde se almacenan datos del juego
+        """
         for i in self.jugadores:
             for c in range(0, 7):
                 mazo= str('mazo'+ str((self.jugadores.index(i)+1)))
                 datos[mazo].append(datos['baraja'][self.jugadores.index(i)])
                 datos['baraja'].remove(datos['baraja'][self.jugadores.index(i)])
     def turnos(self, j):
+        """
+        Funcion para asignar turnos
+
+        Parametros:
+        j= El jugador que esta en turno y acaba de terminarlo
+        """
         for c in self.jugadores:
             if c == j:
-                if self.jugadores.index(c)== (len(self.jugadores)-1) :
-                    jugador =0
-                    self.jugadores[jugador].send("tu turno".encode())
-                    self.turno = self.jugadores[jugador]
+                if self.jugadores.index(c)== (len(self.jugadores)-1):
+                    self.jugadores[0].send("tu turno".encode())
+                    self.turno = self.jugadores[0]
                 else:
                     jugador = self.jugadores.index(c)
                     jugador += 1
@@ -123,94 +135,73 @@ class serv():
                     self.turno = self.jugadores[jugador]
             else:
                 pass
-
-
     def press_baraja(self, datos, j):
-        if j == self.jugadores[0]:
-            datos['mazo1'].append(datos['baraja'][0])
-            datos['cartas_c'].append(datos['baraja'][0])
-            datos['baraja'].remove(datos['baraja'][0])
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
-        elif j == self.jugadores[1]:
-            datos['mazo2'].append(datos['baraja'][0])
-            datos['cartas_c'].append(datos['baraja'][0])
-            datos['baraja'].remove(datos['baraja'][0])
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
-        elif j == self.jugadores[2]:
-            datos['mazo3'].append(datos['baraja'][0])
-            datos['cartas_c'].append(datos['baraja'][0])
-            datos['baraja'].remove(datos['baraja'][0])
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
-        elif j == self.jugadores[3]:
-            datos['mazo4'].append(datos['baraja'][0])
-            datos['cartas_c'].append(datos['baraja'][0])
-            datos['baraja'].remove(datos['baraja'][0])
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
+        """
+        Funcion para cuando presionan la baraja de cartas
+        Le quita una carta a la baraja y se la agrega al jugador
+
+        Parametros:
+        datos=  diccionario donde se manejan datos del juego
+        j= jugador que hace la accion
+        """
+        jugador = ''
+        jugador = self.saber_player(j, jugador)
+        mazo = 'mazo' + jugador
+        print(mazo)
+        datos[mazo].append(datos['baraja'][0])
+        datos['baraja'].remove(datos['baraja'][0])
+        self.cargar(datos)
+        self.msg_to_all("cargar".encode())
 
     def defensa(self, datos, j):
-        if j == self.jugadores[0]:
-            datos['mazo1'].remove("defuse")
-            datos['mazo1'].remove("bomb")
-            datos['cartas_c'].append("defuse")
-            datos['cartas_c'].append("bomb")
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
-        elif j == self.jugadores[1]:
-            datos['mazo2'].remove("defuse")
-            datos['cartas_c'].append("defuse")
-            datos['mazo2'].remove("bomb")
-            datos['cartas_c'].append("bomb")
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
-        elif j == self.jugadores[2]:
-            datos['mazo3'].remove("defuse")
-            datos['mazo3'].remove("bomb")
-            datos['cartas_c'].append("defuse")
-            datos['cartas_c'].append("bomb")
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
+        jugador = ''
+        jugador = self.saber_player(j, jugador)
+        mazo = 'mazo' + jugador
+        print(mazo)
+        datos[mazo].remove("defuse")
+        datos[mazo].remove('bomb')
+        datos['baraja_a'].append("defuse")
+        datos['baraja'].append('bomb')
+        random.shuffle(datos['baraja'])
+        self.cargar(datos)
+        self.msg_to_all("cargar".encode())
 
-        elif j == self.jugadores[3]:
-            datos['mazo4'].remove("defuse")
-            datos['mazo4'].remove("bomb")
-            datos['cartas_c'].append("defuse")
-            datos['cartas_c'].append("bomb")
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
-
-    def favor(self, datos, j):
+    def saber_player(self,j, jugador):
         if j == self.jugadores[0]:
-            datos['mazo1'].remove("defuse")
-            datos['mazo1'].remove("bomb")
-            datos['cartas_c'].append("defuse")
-            datos['cartas_c'].append("bomb")
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
-        elif j == self.jugadores[1]:
-            datos['mazo2'].remove("defuse")
-            datos['cartas_c'].append("defuse")
-            datos['mazo2'].remove("bomb")
-            datos['cartas_c'].append("bomb")
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
+            jugador= '1'
+            return  jugador
+        elif j== self.jugadores[1]:
+            jugador= '2'
+            return jugador
         elif j == self.jugadores[2]:
-            datos['mazo3'].remove("defuse")
-            datos['mazo3'].remove("bomb")
-            datos['cartas_c'].append("defuse")
-            datos['cartas_c'].append("bomb")
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
-        elif j == self.jugadores[3]:
-            datos['mazo4'].remove("defuse")
-            datos['mazo4'].remove("bomb")
-            datos['cartas_c'].append("defuse")
-            datos['cartas_c'].append("bomb")
-            self.cargar(datos)
-            self.msg_to_all("cargar".encode())
+            jugador = '3'
+            return jugador
+        elif j== self.jugadores[3]:
+            jugador = '4'
+            return jugador
+
+    def saltar(self, datos, j):
+        jugador= ''
+        jugador= self.saber_player(j, jugador)
+        mazo= 'mazo' + jugador
+        print(mazo)
+        datos[mazo].remove("skip")
+        datos['baraja_a'].append("skip")
+        self.cargar(datos)
+        self.msg_to_all("cargar".encode())
+        self.contador()
+        self.turnos(j)
+        j.send("Listo".encode())
+    def barajar(self, datos, j):
+        jugador = ''
+        jugador = self.saber_player(j, jugador)
+        mazo = 'mazo' + jugador
+        print(mazo)
+        datos[mazo].remove("shuffle")
+        datos['baraja_a'].append("shuffle")
+        random.shuffle(datos['baraja'])
+        self.cargar(datos)
+        self.msg_to_all("cargar".encode())
 
     def create(self):
         data = {
@@ -227,7 +218,7 @@ class serv():
             'cartas_c': ["attack", "skip", 'favor', "seethefuture", "nope",
                        "shuffle", "comodin1", "comodin2", "comodin3", "comodin4",
                        "comodin5", "bomb", "defuse"],
-            'baraja_a': []
+            'baraja_a': [],
         }
         self.cargar(data)
 
@@ -247,6 +238,12 @@ class serv():
                 pass
 
     def msg_to_all(self, msg):
+        """
+        Funcion para enviar mensajes de llegadas a todos los jugadores conectados
+            Recibe como parametros
+            msg: mensaje entrante
+            jugador: el jugador que envio el mensaje
+            """
         for j in self.jugadores:
             try:
                 if msg:
@@ -261,12 +258,11 @@ class serv():
 
     def contador(self):
         n = 0
-        while n > 60:
+        while n > 1200000:
             n += 1
-        return True
+        pass
 
     def analizar(self, data, j):
-        turn= self.turno
         if data == "desconectado":
             print("Jugador desconectado")
             self.jugadores.remove(j)
@@ -274,21 +270,23 @@ class serv():
             if self.partida ==False:
                 self.create()
                 print("Se ha iniciado la partida")
-                self.jugadores[0].send("tu turno".encode())
+                j.send("tu turno".encode())
                 self.barajar_repartir(self.abrir())
                 self.partida= True
-                self.turno= self.jugadores[0]
-                time= 0
-                while time<120000:
-                    time+= 1
+                self.turno= j
+                self.contador()
                 self.msg_to_all("partida iniciada".encode())
             else:
                 print('Ya hay una partida iniciada')
-        elif data == "baraja" and turn== j:
+        elif data == "baraja" and self.turno ==j:
             self.press_baraja(self.abrir(),j)
-        elif data== 'defensa' and turn == j:
+        elif data == 'barajar' and self.turno == j:
+            self.barajar()
+        elif data== 'defensa' and self.turno == j:
             self.defensa(self.abrir(), j)
-        elif data == 'Final turno' and turn == j:
+        elif data == 'saltar':
+            self.saltar(self.abrir(), j)
+        elif data == 'Final turno' and self.turno == j:
             self.turnos(j)
             j.send('Listo'.encode())
 
